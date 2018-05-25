@@ -3,42 +3,9 @@
     Show question:
 </h1>
 
-<div class="quizItem">
-
-    <div>
-        <% var attachment = quiz.attachment; %>
-        <% include ../attachments/_show %>
-    </div>
-
-    <div>
-        <% include ../favourites/_stars.ejs %>
-        <br/>
-        Question: <b><%= quiz.question %></b>
-        <br />
-        Answer: <b><%= quiz.answer %></b>
-        <br />
-        <small> by <%= quiz.author ? quiz.author.username : "Anonymous" %> </small>
-    </div>
-
-</div>
-
-
-<a href="/goback"><button>Go back</button></a>
-
-
-<h1>
-    Tips:
-</h1>
-
-<% if (session.user) { %>
-    <% include ../tips/new %>
-<% } %>
-
-<% var tips = quiz.tips; %>
-<% var quizId = quiz.id; %>
-<% var quizAuthorId = quiz.authorId; %>
-
-<% include ../tips/index %>
-
+<ul>
+    <li>Question: <b><%= quiz.question %></b></li>
+    <li>Answer: <b><%= quiz.answer %></b></li>
+</ul>
 
 <a href="/quizzes"><button>Go back</button></a>
