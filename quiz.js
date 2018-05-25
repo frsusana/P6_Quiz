@@ -169,7 +169,7 @@ exports.randomPlay = (req, res, next) => {
         //Contamos las preguntas
         .then(count => {
             // la puntuación serán las preguntas respondidas.
-            let score = req.session.randomPLay.length;
+            let score = req.session.randomPLay.length();
             if (count === 0) {
                 delete req.session.randomPLay;
                 //Renderizamos la vista random_nomore
@@ -191,7 +191,7 @@ exports.randomPlay = (req, res, next) => {
     })
     .then(quiz => {
         console.log(`QUIZ: ${quiz}`);
-        let score = req.session.randomPLay.length;
+        let score = req.session.randomPLay.length();
         res.render('quizzes/random_play', {quiz, score});
     });
 
@@ -203,13 +203,13 @@ exports.randomCheck = (req, res, next) => {
 req.session.randomPlay = req.session.randomPLay || [];
     const answer = req.query.answer;
     const result = (answer.toLowerCase().trim() === req.quiz.answer.toLowerCase().trim());
-    let score = req.session.randomPLay.length;
+    let score = req.session.randomPLay.length();
     console.log(score);
     if (result) { //Si la respuesta coincide con la correcta (Sin mayúsculas ni espacios)
         
         if (req.session.randomPLay.indexOf(req.quiz.id) === -1) {
             req.session.randomPLay.push(req.quiz.id);
-            score = req.session.randomPLay.length;
+            score = req.session.randomPLay.length();
         }
         
         models.quiz.count() //contamos el número de quizzes
@@ -222,7 +222,7 @@ req.session.randomPlay = req.session.randomPLay || [];
             }
         });
     } else { //Si la respuesta no coincide
-        let score = req.session.randomPLay.length; // La puntuación son las preguntas que llevaba resueltas
+        let score = req.session.randomPLay.length(); // La puntuación son las preguntas que llevaba resueltas
         delete req.session.randomPLay;    //Vaciamos las preguntas
         res.render('quizzes/random_result', {score, answer, result}); //renderizamos la vista
     }
