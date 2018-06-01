@@ -153,3 +153,83 @@ exports.check = (req, res, next) => {
         answer
     });
 };
+
+// GET /quizzes/randomPlay
+exports.randomPlay = (req, res, next) => {
+ 
+    // Se guardan las preguntas respondidas (los ids)
+    req.session.randomPlay = req.session.randomPlay || [];
+    
+    Sequelize.Promise.resolve()
+    .then(() => {
+        
+        // Preguntas que no se han respondido, el id no esta en req.session.randomPLay
+        return models.quiz.count({where: {'id': {[Sequelize.Op.notIn]: req.session.randomPlay}} })
+         
+        //Contamos las preguntas
+        .then(count => {
+            // la puntuación serán las preguntas respondidas.
+            let score = req.session.randomPlay.length;
+            if (count === 0) {
+                delete req.session.randomPlay;
+                //Renderizamos la vista random_nomore
+                res.render('quizzes/random_nomore', {score});
+            }
+            //creamos una variable aleatoria (con el valor de los quizzes no contestados aún)
+            let rndm = Math.floor(Math.random() * count);
+            //Buscamos esas preguntas
+            return models.quiz.findAll({ where: {'id': {[Sequelize.Op.notIn]: req.session.randomPlay}}, offset: rndm, limit: 1 })  
+            .then(quizzes => { return quizzes[0]; //Devolvemos la primera pregunta 
+            });
+        })
+        .catch(error => {
+            req.flash('error', `Error deleting the quiz: ${error.message}`);
+            next(error);
+        });
+    })
+    .then(quiz => {
+        console.log(`QUIZ: ${quiz}`);
+        let score = req.session.randomPlay.length;
+        res.render('quizzes/random_play', {quiz, score});
+    });
+
+};
+
+// GET /quizzes/randomCheck
+exports.randomCheck = (req, res, next) => {
+    //Guardamos las preguntas
+req.session.randomPlay = req.session.randomPlay || [];
+    const answer = req.query.answer;
+    const result = (answer.toLowerCase().trim() === req.quiz.answer.toLowerCase().trim());
+    let score = req.session.randomPlay.length;
+    console.log(score);
+    if (result) { //Si la respuesta coincide con la correcta (Sin mayúsculas ni espacios)
+        
+        if (req.session.randomPlay.indexOf(req.quiz.id) === -1) {
+            req.session.randomPlay.push(req.quiz.id);
+            score = req.session.randomPlay.length;
+        }
+        
+        models.quiz.count() //contamos el número de quizzes
+        .then(count => {
+            if (score > count) { //Si las respondidas son mayores que el número de quizzes
+                delete req.session.randomPlay;    //eliminamos las preguntas resultas (vaciamos)
+                res.render('quizzes/random_result', {score, answer, result}); //Renderizamos la vista y actualizamos result, score y answer
+            } else {
+                res.render('quizzes/random_result', {score, answer, result});
+            }
+        });
+    } else { //Si la respuesta no coincide
+        let score = req.session.randomPlay.length; // La puntuación son las preguntas que llevaba resueltas
+        delete req.session.randomPlay;    //Vaciamos las preguntas
+        res.render('quizzes/random_result', {score, answer, result}); //renderizamos la vista
+    }
+};
+
+
+
+
+
+
+
+
