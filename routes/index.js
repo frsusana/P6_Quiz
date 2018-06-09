@@ -137,5 +137,16 @@ router.delete('/quizzes/:quizId(\\d+)/tips/:tipId(\\d+)',
     quizController.adminOrAuthorRequired,
     tipController.destroy);
 
+//Añadimos nuevas rutas, para poder editar el texto
+
+router.get('/quizzes/:quizId/tips/:tipId/edit',
+    sessionController.loginRequired,
+    tipController.adminOrAuthorRequired,
+    tipController.edit);
+
+router.post('/quizzes/:quizId/tips/:tipId',
+    sessionController.loginRequired,
+    tipController.adminOrAuthorRequired,
+    tipController.update);
 
 module.exports = router;

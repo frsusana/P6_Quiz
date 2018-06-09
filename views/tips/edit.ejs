@@ -1,0 +1,7 @@
+<h1>
+    Edit tip:
+</h1>
+
+<form method="post" action="/quizzes/<%= quiz.id %>/tips/<%= tip.id%>?_method=PUT" >
+    <% include _form.ejs %>
+</form>
